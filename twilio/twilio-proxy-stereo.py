@@ -8,9 +8,10 @@ import ssl
 from pydub import AudioSegment
 
 def deepgram_connect():
-	basic_auth = base64.b64encode(b"username:password").decode("ascii")
-	headers = { 'Authorization' : 'Basic %s' %  basic_auth}
-	deepgram_ws = websockets.connect("wss://cab2b5852c84ae12.deepgram.com/v2/listen/stream?encoding=mulaw&sample_rate=8000&channels=2&multichannel=true", extra_headers = headers)
+   	extra_headers = {
+       		'Authorization': 'Token YOUR_DEEPGRAM_API_KEY'
+   	}
+	deepgram_ws = websockets.connect("wss://api.deepgram.com/v1/listen?encoding=mulaw&sample_rate=8000&channels=2&multichannel=true", extra_headers = extra_headers)
 
 	return deepgram_ws
 
