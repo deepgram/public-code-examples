@@ -30,7 +30,7 @@ async def run(data, key, channels, sample_width, sample_rate, filepath):
         # Alter the protocol and base URL below.
         f'wss://api.deepgram.com/v1/listen?punctuate=true&channels={channels}&sample_rate={sample_rate}&encoding=linear16',
         extra_headers={
-            'Authorization': 'Basic {}'.format(key)
+            'Authorization': 'Token {}'.format(key)
         }
     ) as ws:
         async def sender(ws):
