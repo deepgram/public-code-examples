@@ -3,7 +3,7 @@
     Dependencies (use `pip install X` to install a dependency):
       - websockets
     Usage:
-      python deepgram_streaming.py -u USERNAME:PASSWORD /path/to/audio.wav
+      python deepgram_streaming.py -k 'YOUR_DEEPGRAM_API_KEY' /path/to/audio.wav
     Limitations:
       - Only parses signed, 16-bit little-endian encoded WAV files.
 """
@@ -20,7 +20,7 @@ import subprocess
 # Mimic sending a real-time stream by sending this many seconds of audio at a time.
 REALTIME_RESOLUTION = 0.100
 
-async def run(data, auth, channels, sample_width, sample_rate, filepath):
+async def run(data, key, channels, sample_width, sample_rate, filepath):
     # How many bytes are contained in one second of audio.
     byte_rate = sample_width * sample_rate * channels
     print('This demonstration will print all finalized results, not interim results.')
@@ -28,9 +28,9 @@ async def run(data, auth, channels, sample_width, sample_rate, filepath):
     # Connect to the real-time streaming endpoint, attaching our credentials.
     async with websockets.connect(
         # Alter the protocol and base URL below.
-        f'wss://cab2b5852c84ae12.deepgram.com/v2/listen/stream?punctuate=true&channels={channels}&sample_rate={sample_rate}&encoding=linear16',
+        f'wss://api.deepgram.com/v1/listen?punctuate=true&channels={channels}&sample_rate={sample_rate}&encoding=linear16',
         extra_headers={
-            'Authorization': 'Basic {}'.format(base64.b64encode(auth.encode()).decode())
+            'Authorization': 'Token {}'.format(key)
         }
     ) as ws:
         async def sender(ws):
@@ -81,7 +81,7 @@ def parse_args():
     """ Parses the command-line arguments.
     """
     parser = argparse.ArgumentParser(description='Submits data to the real-time streaming endpoint.')
-    parser.add_argument('-u', '--user', required=True, help='USER:PASS authorization.')
+    parser.add_argument('-k', '--key', required=True, help='YOUR_DEEPGRAM_API_KEY (authorization)')
     parser.add_argument('input', help='Input file.')
     return parser.parse_args()
 
@@ -99,7 +99,7 @@ def main():
     print(f'Channels = {channels}, Sample Rate = {sample_rate} Hz, Sample width = {sample_width} bytes, Size = {len(data)} bytes', file=sys.stderr)
 
     # Run the example.
-    asyncio.get_event_loop().run_until_complete(run(data, args.user, channels, sample_width, sample_rate, args.input))
+    asyncio.get_event_loop().run_until_complete(run(data, args.key, channels, sample_width, sample_rate, args.input))
 
 if __name__ == '__main__':
     sys.exit(main() or 0)
