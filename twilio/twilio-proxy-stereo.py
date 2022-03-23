@@ -129,7 +129,7 @@ async def proxy(client_ws, path):
 #						file_inbound.write(asinbound.raw_data)
 #						file_outbound.write(asoutbound.raw_data)
 #						file_mixed.write(mixed.raw_data)
-						file_manually_mixed.write(manually_mixed)
+#						file_manually_mixed.write(manually_mixed)
 
 						# sending to deepgram
 						outbox.put_nowait(mixed.raw_data)
