@@ -2,7 +2,7 @@ const WebSocketServer = require('ws');
 const { Deepgram } = require('@deepgram/sdk')
 
 const websocketServer = new WebSocketServer.Server({ port: 5000 })
-const deepgram = new Deepgram("1eb45f404f76787f1eb8eb440505982264744776")
+const deepgram = new Deepgram("INSERT_YOUR_API_KEY_HERE")
 
 websocketServer.on("connection", ws => {
   console.log("new client connected");
