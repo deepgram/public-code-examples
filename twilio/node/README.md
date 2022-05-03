@@ -4,7 +4,7 @@ Two node scripts are provided which can do basic twilio-deepgram proxying. Run `
 to run the proxy server for either just the inbound track, or both the inbound and outbound tracks, respectively. They have the following dependencies:
 
 ```
-npm install cross-fetch @websocket
+npm install cross-fetch websocket
 npm install cross-fetch @deepgram/sdk
 ```
 
