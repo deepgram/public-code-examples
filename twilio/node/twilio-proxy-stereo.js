@@ -10,7 +10,8 @@ websocketServer.on("connection", ws => {
   const deepgramLive = deepgram.transcription.live({
     encoding: "mulaw",
     sample_rate: 8000,
-    channels: 2
+    channels: 2,
+    multichannel: true
   });
 
   deepgramLive.addListener('transcriptReceived', (transcription) => {
@@ -46,8 +47,8 @@ websocketServer.on("connection", ws => {
           mixed_samples[2 * i + 1] = outbound_samples[i];
         }
 
-        inbound_samples.splice(mixable_length - inbound_samples.length);
-        outbound_samples.splice(mixable_length - outbound_samples.length);
+        inbound_samples = inbound_samples.slice(mixable_length);
+        outbound_samples = outbound_samples.slice(mixable_length);
 
         if (deepgramLive && deepgramLive.getReadyState() === 1) {
           deepgramLive.send(Buffer.from(mixed_samples));
