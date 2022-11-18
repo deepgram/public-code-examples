@@ -32,7 +32,7 @@ websocketServer.on("connection", ws => {
   });
 
   ws.on("close", () => {
-    console.log("client has connected");
+    console.log("client has disconnected");
     if (deepgramLive && deepgramLive.getReadyState() === 1) {
       deepgramLive.finish();
     }
