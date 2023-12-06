@@ -1,49 +1,57 @@
-const WebSocketServer = require('ws');
-const { Deepgram } = require('@deepgram/sdk')
+const WebSocketServer = require("ws");
+const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 
-const websocketServer = new WebSocketServer.Server({ port: 5000 })
-const deepgram = new Deepgram("INSERT_YOUR_API_KEY_HERE")
+const websocketServer = new WebSocketServer.Server({ port: 5000 });
+const deepgramApiKey = "INSERT_YOUR_API_KEY_HERE";
 
-websocketServer.on("connection", ws => {
+websocketServer.on("connection", (ws) => {
   console.log("new client connected");
 
-  const deepgramLive = deepgram.transcription.live({
+  const deepgram = createClient(deepgramApiKey);
+  const connection = deepgram.listen.live({
+    model: "nova-2",
+    smart_format: true,
     encoding: "mulaw",
     sample_rate: 8000,
-    channels: 1
+    channels: 1,
   });
 
-  deepgramLive.addListener('transcriptReceived', (transcription) => {
-    console.dir(transcription, { depth: null });
-  });
+  connection.on(LiveTranscriptionEvents.Open, () => {
+    connection.on(LiveTranscriptionEvents.Close, () => {
+      console.log("Connection closed.");
+    });
 
-  ws.on("message", data => {
-    var twilio_message = JSON.parse(data);
-    if (twilio_message["event"] === "connected" || twilio_message["event"] === "start") {
-      console.log("received a twilio connected or start event");
-    }
-    if (twilio_message["event"] === "media") {
-      var media = twilio_message["media"];
-      var audio = Buffer.from(media["payload"], "base64");
-      if (deepgramLive && deepgramLive.getReadyState() === 1) {
-        deepgramLive.send(audio);
+    connection.on(LiveTranscriptionEvents.Transcript, (transcription) => {
+      console.dir(transcription, { depth: null });
+    });
+
+    ws.on("message", (data) => {
+      const twilioMessage = JSON.parse(data);
+      if (
+        twilioMessage["event"] === "connected" ||
+        twilioMessage["event"] === "start"
+      ) {
+        console.log("received a twilio connected or start event");
       }
-    }
-  });
+      if (twilioMessage["event"] === "media") {
+        const media = twilioMessage["media"];
+        const audio = Buffer.from(media["payload"], "base64");
+        connection.send(audio);
+      }
+    });
 
-  ws.on("close", () => {
-    console.log("client has connected");
-    if (deepgramLive && deepgramLive.getReadyState() === 1) {
-      deepgramLive.finish();
-    }
-  });
+    ws.on("close", () => {
+      console.log("client has disconnected");
+      if (connection) {
+        connection.finish();
+      }
+    });
 
-  ws.onerror = function () {
-    console.log("some error occurred")
-    if (deepgramLive && deepgramLive.getReadyState() === 1) {
-      deepgramLive.finish();
-    }
-  }
+    ws.onerror = function () {
+      console.log("some error occurred");
+      connection.finish();
+    };
+  });
 });
 
 console.log("the websocket server is running on port 5000");
