@@ -13,7 +13,7 @@ websocketServer.on("connection", (ws) => {
     smart_format: true,
     encoding: "mulaw",
     sample_rate: 8000,
-    channels: 1,
+    channels: 2,
   });
 
   const inboundSamples = [];
