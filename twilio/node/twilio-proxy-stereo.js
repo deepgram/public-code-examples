@@ -16,8 +16,8 @@ websocketServer.on("connection", (ws) => {
     channels: 1,
   });
 
-  const inboundSamples = [];
-  const outboundSamples = [];
+  let inboundSamples = [];
+  let outboundSamples = [];
 
   connection.on(LiveTranscriptionEvents.Open, () => {
     connection.on(LiveTranscriptionEvents.Close, () => {
